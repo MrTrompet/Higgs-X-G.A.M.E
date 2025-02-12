@@ -23,10 +23,13 @@ We use this structure as the base for our project.
 
 Our repository is organized as follows:
 
-higgsx/ ├── config.py # Configuration file (uses environment variables) ├── higgsx.py # Main entry point for headless deployment └── plugins/ ├── init.py # Empty file to mark the folder as a package ├── technical_plugin.py # Handles technical analysis, ML, and data fetching from CoinGecko └── telegram_plugin.py # Manages Telegram connectivity, messaging, and graphics
+higgsx/ 
+├── config.py # Configuration file (uses environment variables) 
+├── higgsx.py # Main entry point for headless deployment 
+   └── plugins/ 
+   ├── init.py # Empty file to mark the folder as a package 
+   ├── technical_plugin.py # Handles technical analysis, ML, and data fetching from CoinGecko └── telegram_plugin.py # Manages Telegram connectivity, messaging, and graphics
 
-sql
-Copiar código
 
 #### Setting Up Your Local Repository:
 
@@ -39,8 +42,7 @@ Copiar código
    git add .
    git commit -m "Initial commit of the Higgs X project - G.A.M.E"
 Link your local repository with your GitHub repository using:
-bash
-Copiar código
+
 git remote add origin https://github.com/yourusername/your-repo.git
 git push -u origin master
 Deployment with Railway (Server Section)
@@ -49,25 +51,35 @@ Our project is designed to run headless, making it ideal for deployment on a ser
 To deploy on Railway:
 
 Create an account on Railway and set up a new project.
+
 Link your GitHub repository (where you pushed Higgs X) to Railway.
+
 Configure environment variables in Railway's dashboard (e.g., TELEGRAM_TOKEN, TELEGRAM_CHAT_ID, OPENAI_API_KEY, SYMBOL, TIMEFRAME, etc.).
+
 Railway will automatically build and deploy your project using higgsx.py as the entry point, which starts the Telegram bot loop and market monitoring loop.
+
 Telegram Integration (Telegram Section)
+
 Our agent uses Telegram to send market signals and respond to user messages.
 
 How to set up Telegram:
 
-Open Telegram and search for BotFather.
+# Open Telegram and search for BotFather.
+
 Start a conversation with BotFather and use the /newbot command to create your bot. Follow the instructions to obtain your Telegram API Token.
+
 In a group or private chat, obtain the Chat ID (you can use tools or send a test message and inspect the update).
 Set these values as environment variables in Railway:
 TELEGRAM_TOKEN
 TELEGRAM_CHAT_ID
 The telegram_plugin.py handles the connection: it listens for messages, generates charts on demand, and sends alerts.
-Personalization and Agent Personality
+
+# Personalization and Agent Personality
+
 Higgs is designed to be highly customizable. You can modify the agent’s personality—how it speaks to users, tags them with their @username, or even add fun narratives (for example, as a scientist, a doctor, or any character you desire). This personalization is integrated into the message handling logic, allowing you to adjust the tone, style, and overall narrative to suit your audience.
 
-Final Words
+Final Words.
+
 Higgs X is a project built entirely by me at Ulu Labs. I developed it using a low-resource computer, with borrowed internet, and even under governmental censorship of artificial intelligences. Despite these challenges, I managed to create an autonomous trading agent by leveraging the modular structure of the GAME SDK and extending it with custom plugins for technical analysis (leveraging CoinGecko) and Telegram integration. Whether you're just starting or you're an advanced trader, Higgs is designed to guide you through market movements with clarity and simplicity.
 
 Happy coding and let curiosity lead your journey!
@@ -75,8 +87,22 @@ Happy coding and let curiosity lead your journey!
 Best regards,
 Mr.Trompet
 
-日本語 (Japanese)
-はじめに
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------
+-------------------------------------------
+------------------------------
+---------------------
+----------------
+----------
+-----
+---
+-
+
+
+
+# 日本語 (Japanese)
+## はじめに
+
 Higgs X へようこそ。これは、Virtualsが提供する GAME SDK のモジュラー構造を活用して構築された自律トレーディングエージェントです。Ulu Labsで開発された本ソフトウェアは、GAMEやHiggsの基本的なアイデアを組み合わせ、強力な市場シグナル、テクニカル分析、そしてTelegramを介したリアルタイム通信を実現します。私たちの目標は、初心者から上級トレーダーまで、誰もが分かりやすく市場の動きを捉えられるようにすることです。理論上、基本的な動作は5歳の子供でも理解できるように設計されています！
 
 プロジェクトのクローンとセットアップ方法
@@ -99,19 +125,18 @@ higgsx/
     ├── __init__.py       # 空ファイル（パッケージとして認識させるため）
     ├── technical_plugin.py  # CoinGeckoからのデータ取得、テクニカル分析、MLを担当
     └── telegram_plugin.py   # Telegram連携、メッセージ送信、グラフ生成を担当
+
 ローカルリポジトリのセットアップ:
 新しいフォルダ（例：higgsx）を作成し、上記の構造に従ってファイルを配置します。
 このフォルダをワークスペースとして開いてください。（これがプロジェクトのルートになります）
 各サブフォルダに __init__.py ファイルを必ず配置してください。
 以下のコマンドでGitリポジトリを初期化します：
-bash
-Copiar código
+
 git init
 git add .
 git commit -m "Commit inicial del proyecto HiggsX - G.A.M.E"
 GitHubリポジトリにリンクしてプッシュします：
-bash
-Copiar código
+
 git remote add origin https://github.com/yourusername/your-repo.git
 git push -u origin master
 Railwayによるデプロイ (Server セクション)
@@ -139,6 +164,7 @@ telegram_plugin.py が連携を担当し、メッセージ送信、グラフ生�
 Higgsは非常にカスタマイズ可能な設計となっています。ユーザーに対して@usernameでタグ付けをしたり、科学者や医師などの楽しいナラティブを加えることで、エージェントの性格や話し方を自由に変更できます。この機能により、利用者に合わせた体験を提供でき、ボットをよりフレンドリーにも、またはプロフェッショナルにも仕上げることが可能です。
 
 最後に
+
 Higgs Xは、Ulu Labsにおいて私自身が完全に独自で構築したプロジェクトです。低スペックなコンピュータ、インターネット環境が十分でない状況、そして人工知能に対する政府の検閲という困難な条件下で開発されました。これらの試練にもかかわらず、GAME SDKのモジュラー構造を活用し、CoinGeckoを利用したテクニカル分析やTelegram連携のためのカスタムプラグインを拡張することで、自律トレーディングエージェントを実現することができました。初心者でも、経験豊富なトレーダーでも、Higgsは市場の動向を明快かつシンプルに案内します。
 
 楽しいコーディングを、そして好奇心があなたの旅路を導きますように！
@@ -146,8 +172,21 @@ Higgs Xは、Ulu Labsにおいて私自身が完全に独自で構築したプ�
 敬具,
 Mr.Trompet ^.^
 
-Español
-Introducción
+
+-----------------------------------------------------------------------------------------------------------
+                           --------------------------------------------------------------------------------
+                                             --------------------------------------------------------------
+                                                            -----------------------------------------------             ----------------------------------
+                                                                                       --------------------         -----------
+                                                                                                     ------
+                                                                                                        ---
+
+
+
+
+# Español 
+## Introducción
+
 ¡Bienvenidos a Higgs X! Este es un agente de trading autónomo desarrollado en Ulu Labs, basado en la estructura modular del GAME SDK de Virtuals. Nuestro software, Higgs, fusiona las ideas de GAME y Higgs para generar señales de mercado, realizar análisis técnico y comunicarse en tiempo real mediante Telegram. Nuestro objetivo es democratizar el dinero, guiando tanto a principiantes como a traders avanzados de forma tan sencilla que, en teoría, hasta un niño de 5 años pueda entenderlo.
 
 Cómo Clonar y Configurar el Proyecto
@@ -170,13 +209,15 @@ higgsx/
     ├── __init__.py       # Archivo vacío para que Python reconozca el paquete
     ├── technical_plugin.py  # Plugin para análisis técnico, ML y obtención de datos de CoinGecko
     └── telegram_plugin.py   # Plugin para la conexión y manejo de Telegram
+
 Configuración del Repositorio en GitHub:
+
 Crea una carpeta (por ejemplo, higgsx) y organiza tus archivos como se muestra arriba.
 Abre esa carpeta como tu workspace; esta será la raíz de tu proyecto.
 Asegúrate de que cada subcarpeta que desees importar contenga un archivo __init__.py (vacío está bien).
+
 Inicializa un repositorio Git y haz push a GitHub:
-bash
-Copiar código
+
 git init
 git add .
 git commit -m "Commit inicial del proyecto HiggsX - G.A.M.E"
@@ -203,10 +244,13 @@ Configura estos valores como variables de entorno en Railway:
 TELEGRAM_TOKEN
 TELEGRAM_CHAT_ID
 El archivo telegram_plugin.py se encarga de gestionar la conexión, el envío de mensajes y gráficos, y el procesamiento de solicitudes.
-Personalización y la Personalidad del Agente
+
+# Personalización y la Personalidad del Agente
+
 Higgs está diseñado para ser altamente personalizable. Puedes modificar la forma en que el agente se comunica con los usuarios, por ejemplo, etiquetándolos con su @username o añadiendo narrativas divertidas e interesantes (como la de un científico, un médico, etc.). Esta característica te permite adaptar el tono y estilo del bot para hacerlo más cercano y atractivo para tu audiencia.
 
 Conclusión
+
 Higgs es un proyecto que desarrollé completamente por mí en Ulu Labs. Lo construí utilizando una computadora de bajos recursos, con un internet limitado y enfrentándome a la censura gubernamental de las inteligencias artificiales. A pesar de estos desafíos, logré crear un agente de trading autónomo aprovechando la estructura modular del GAME SDK y extendiéndola con plugins personalizados para análisis técnico (usando CoinGecko) y para la integración con Telegram. Ya seas principiante o trader avanzado, Higgs está diseñado para guiarte en los movimientos del mercado de forma clara y sencilla.
 
 ¡Feliz codificación y que la curiosidad ilumine tu camino!

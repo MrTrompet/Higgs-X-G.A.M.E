@@ -1,4 +1,4 @@
-When organizing your Python project with multiple folders (modules and packages), it’s essential to understand how Python recognizes packages. To have Python treat a folder as a module (or package) that you can import from, you need to include an (often empty) file named __init__.py inside that folder. This file tells Python, “This folder is a package,” which allows you to import files from that directory. Without it, Python may not recognize the folder as a module, and your imports will fail.
+## When organizing your Python project with multiple folders (modules and packages), it’s essential to understand how Python recognizes packages. To have Python treat a folder as a module (or package) that you can import from, you need to include an (often empty) file named __init__.py inside that folder. This file tells Python, “This folder is a package,” which allows you to import files from that directory. Without it, Python may not recognize the folder as a module, and your imports will fail.
 
 For example, consider the following project structure:
 
