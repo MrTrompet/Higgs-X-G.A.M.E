@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Higgs X Performance Dashboard</title>
+  <!-- Load Chart.js from a CDN -->
+  <!-- CDNからChart.jsを読み込み -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* General styles / 全体のスタイル */
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #0d0d0d;
+      color: #ffffff;
+      margin: 0;
+      padding: 0;
+      /* Permitir scroll vertical */
+      overflow-y: auto;
+    }
+    /* Splash screen styles / スプラッシュ画面のスタイル */
+    #splash {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #0d0d0d, #1a1a1a);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+      animation: fadeOut 2s ease-in-out 3s forwards;
+    }
+    @keyframes fadeOut {
+      0% { opacity: 1; }
+      100% { opacity: 0; visibility: hidden; }
+    }
+    /* Dashboard container styles / ダッシュボード用コンテナ */
+    #dashboard {
+      margin-top: 120px;
+      padding: 20px;
+      animation: slideIn 1s forwards;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    /* Chart container styles / グラフ用コンテナのスタイル */
+    .chart-container {
+      display: inline-block;
+      margin: 20px;
+      vertical-align: top;
+    }
+    /* Adjust canvas sizes for doughnut charts / 円グラフ用のキャンバスサイズ調整 */
+    canvas.doughnut {
+      width: 200px !important;
+      height: 200px !important;
+    }
+    /* Bar chart canvas size / 棒グラフ用のキャンバスサイズ */
+    canvas.bar-chart {
+      width: 300px !important;
+      height: 200px !important;
+    }
+    /* Signal line chart canvas size / シグナルラインチャートのキャンバスサイズ */
+    canvas.signal-chart {
+      width: 600px !important;
+      height: 300px !important;
+    }
+  </style>
+</head>
+<body>
+  <!-- Splash Intro / スプラッシュイントロ -->
+  <div id="splash">
+    <h1>Higgs X "Tests"</h1>
+  </div>
+  
+  <!-- Dashboard Container / ダッシュボードコンテナ -->
+  <div id="dashboard">
+    <h2>Higgs X Performance Dashboard</h2>
+    
+    <!-- Doughnut Charts Section / 円グラフセクション -->
+    <div class="chart-container">
+      <canvas id="doughnut1" class="doughnut"></canvas>
+      <p>Prediction Success Rate<br>予測成功率</p>
+    </div>
+    <div class="chart-container">
+      <canvas id="doughnut2" class="doughnut"></canvas>
+      <p>Market Signal Accuracy<br>市場シグナルの正確性</p>
+    </div>
+    <div class="chart-container">
+      <canvas id="doughnut3" class="doughnut"></canvas>
+      <p>Indicator Reliability<br>指標の信頼性</p>
+    </div>
+    
+    <!-- Bar Charts Section / 棒グラフセクション -->
+    <h3>Response Metrics<br>応答指標</h3>
+    <div class="chart-container">
+      <canvas id="bar1" class="bar-chart"></canvas>
+      <p>Response Time (ms)<br>応答時間 (ミリ秒)</p>
+    </div>
+    <div class="chart-container">
+      <canvas id="bar2" class="bar-chart"></canvas>
+      <p>Support Rating<br>サポート評価</p>
+    </div>
+    <div class="chart-container">
+      <canvas id="bar3" class="bar-chart"></canvas>
+      <p>Signal Effectiveness<br>シグナル有効性</p>
+    </div>
+    
+    <!-- Signal Learning Curve Line Chart / シグナル学習曲線のラインチャート -->
+    <h3>Signal Learning Curve<br>シグナル学習曲線</h3>
+    <div class="chart-container">
+      <canvas id="signalChart" class="signal-chart"></canvas>
+      <p>Signal Curve (Scale 1-100)<br>信号カーブ (1〜100スケール)</p>
+    </div>
+  </div>
+  
+  <script>
+    // Wait until splash animation ends to show dashboard / スプラッシュアニメーション終了後にダッシュボードを表示する
+    setTimeout(() => {
+      document.body.classList.add('loaded');
+    }, 5000); // 5 seconds delay
+
+    // Doughnut chart sample data / 円グラフのサンプルデータ
+    const doughnutData1 = {
+      labels: ['Success', 'Fail'],
+      datasets: [{
+        data: [70, 30],
+        backgroundColor: ['#4CAF50', '#F44336'],
+        hoverBackgroundColor: ['#66BB6A', '#E57373']
+      }]
+    };
+
+    const doughnutData2 = {
+      labels: ['Accurate', 'Inaccurate'],
+      datasets: [{
+        data: [80, 20],
+        backgroundColor: ['#2196F3', '#FF9800'],
+        hoverBackgroundColor: ['#64B5F6', '#FFB74D']
+      }]
+    };
+
+    const doughnutData3 = {
+      labels: ['Reliable', 'Unreliable'],
+      datasets: [{
+        data: [65, 35],
+        backgroundColor: ['#9C27B0', '#E91E63'],
+        hoverBackgroundColor: ['#BA68C8', '#F06292']
+      }]
+    };
+
+    // Doughnut chart configurations / 円グラフの設定
+    const doughnutConfig1 = {
+      type: 'doughnut',
+      data: doughnutData1,
+      options: {
+        responsive: true,
+        animation: { animateRotate: true, duration: 2000 },
+        plugins: { legend: { position: 'top' }, title: { display: true, text: 'Prediction Success Rate' } }
+      }
+    };
+    const doughnutConfig2 = {
+      type: 'doughnut',
+      data: doughnutData2,
+      options: {
+        responsive: true,
+        animation: { animateRotate: true, duration: 2000 },
+        plugins: { legend: { position: 'top' }, title: { display: true, text: 'Market Signal Accuracy' } }
+      }
+    };
+    const doughnutConfig3 = {
+      type: 'doughnut',
+      data: doughnutData3,
+      options: {
+        responsive: true,
+        animation: { animateRotate: true, duration: 2000 },
+        plugins: { legend: { position: 'top' }, title: { display: true, text: 'Indicator Reliability' } }
+      }
+    };
+
+    // Create doughnut charts / 円グラフを作成
+    new Chart(document.getElementById('doughnut1').getContext('2d'), doughnutConfig1);
+    new Chart(document.getElementById('doughnut2').getContext('2d'), doughnutConfig2);
+    new Chart(document.getElementById('doughnut3').getContext('2d'), doughnutConfig3);
+
+    // Bar charts sample data / 棒グラフのサンプルデータ
+    const barData1 = {
+      labels: ['Response Time'],
+      datasets: [{
+        label: 'ms',
+        data: [120], // Example response time in ms / 例: 120ミリ秒
+        backgroundColor: ['#03A9F4']
+      }]
+    };
+    const barData2 = {
+      labels: ['Support Rating'],
+      datasets: [{
+        label: '%',
+        data: [90], // Example support rating percentage / 例: 90%
+        backgroundColor: ['#8BC34A']
+      }]
+    };
+    const barData3 = {
+      labels: ['Signal Effectiveness'],
+      datasets: [{
+        label: '%',
+        data: [75], // Example effectiveness percentage / 例: 75%
+        backgroundColor: ['#FFC107']
+      }]
+    };
+
+    // Bar chart configurations / 棒グラフの設定
+    const barConfig1 = {
+      type: 'bar',
+      data: barData1,
+      options: {
+        responsive: true,
+        animation: { duration: 1500 },
+        plugins: { legend: { display: false }, title: { display: true, text: 'Response Time' } },
+        scales: { y: { beginAtZero: true } }
+      }
+    };
+    const barConfig2 = {
+      type: 'bar',
+      data: barData2,
+      options: {
+        responsive: true,
+        animation: { duration: 1500 },
+        plugins: { legend: { display: false }, title: { display: true, text: 'Support Rating' } },
+        scales: { y: { beginAtZero: true, max: 100 } }
+      }
+    };
+    const barConfig3 = {
+      type: 'bar',
+      data: barData3,
+      options: {
+        responsive: true,
+        animation: { duration: 1500 },
+        plugins: { legend: { display: false }, title: { display: true, text: 'Signal Effectiveness' } },
+        scales: { y: { beginAtZero: true, max: 100 } }
+      }
+    };
+
+    // Create bar charts / 棒グラフを作成
+    new Chart(document.getElementById('bar1').getContext('2d'), barConfig1);
+    new Chart(document.getElementById('bar2').getContext('2d'), barConfig2);
+    new Chart(document.getElementById('bar3').getContext('2d'), barConfig3);
+
+    // Signal Learning Curve (Line Chart) Sample Data / シグナル学習曲線（ラインチャート）のサンプルデータ
+    const signalData = {
+      labels: ['Step 1', 'Step 2', 'Step 3', 'Step 4', 'Step 5', 'Step 6', 'Step 7', 'Step 8', 'Step 9', 'Step 10', 'Step 11', 'Step 12', 'Step 13', 'Step 14', 'Step 15'],
+      datasets: [{
+        label: 'Signal Level',
+        data: [20, 30, 45, 55, 65, 70, 68, 72, 67, 70, 69, 71, 68, 72, 66],
+        borderColor: '#FF5722',
+        backgroundColor: 'rgba(255,87,34,0.2)',
+        fill: true,
+        tension: 0.4
+      }]
+    };
+
+    const signalConfig = {
+      type: 'line',
+      data: signalData,
+      options: {
+        responsive: true,
+        animation: { duration: 2000 },
+        plugins: {
+          legend: { display: true },
+          title: { display: true, text: 'Signal Learning Curve' }
+        },
+        scales: {
+          y: { beginAtZero: true, max: 100 }
+        }
+      }
+    };
+
+    // Create signal learning curve chart / シグナル学習曲線チャートを作成
+    new Chart(document.getElementById('signalChart').getContext('2d'), signalConfig);
+  </script>
+</body>
+</html>
