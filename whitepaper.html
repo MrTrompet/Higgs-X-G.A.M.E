@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Higgs X - White Paper</title>
+  <style>
+    /* Reset básico */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: #000;
+      color: #00FF00;
+      font-family: 'Consolas', monospace;
+      line-height: 1.6;
+      overflow-x: hidden;
+      position: relative;
+    }
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+    /* Estilo general para botones (aplica a Language, Deploy, etc.) */
+    button,
+    #langSelector button {
+      border: 1px solid #00FF00;
+      background: #000;
+      color: #00FF00;
+      cursor: pointer;
+      transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+      box-shadow: 0 0 5px rgba(0,255,0,0.3);
+    }
+    button:hover,
+    #langSelector button:hover {
+      background: #00FF00;
+      color: #000;
+      box-shadow: 0 0 10px rgba(0,255,0,0.7);
+    }
+    /* Estilos especiales para READY y ROADMAP (únicos en estética) */
+    #readyButton,
+    #roadmapButton {
+      border: 2px solid #00FF00;
+      background: #000;
+      color: #00FF00;
+      font-weight: bold;
+      box-shadow: 0 0 15px rgba(0,255,0,0.8);
+    }
+    /* Preloader (pantalla hacker con símbolos aleatorios) */
+    #preloader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      z-index: 9999;
+      overflow: hidden;
+    }
+    #preloader .symbol {
+      position: absolute;
+      color: #00FF00;
+      font-size: 1.5rem;
+      opacity: 0.8;
+      animation: blink 1.5s infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 0.8; }
+      50% { opacity: 0.3; }
+    }
+    #preloader .start-msg {
+      position: absolute;
+      bottom: 100px;
+      width: 100%;
+      text-align: center;
+      font-size: 1.2rem;
+      animation: fadeIn 2s ease-out infinite;
+    }
+    @keyframes fadeIn {
+      0% { opacity: 0.3; }
+      50% { opacity: 1; }
+      100% { opacity: 0.3; }
+    }
+    /* Botón READY (único) */
+    #readyButton {
+      position: absolute;
+      bottom: 7500px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10000;
+      padding: 8px 15px;
+      border-radius: 15px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    /* Botón Language */
+    #langToggle {
+      position: absolute;
+      top: 50px;
+      right: 10px;
+      z-index: 10000;
+      padding: 5px 8px;
+      border-radius: 5px;
+      font-size: 0.8rem;
+      display: none; /* Oculto mientras el loader está activo */
+    }
+    #langSelector {
+      position: absolute;
+      top: 90px;
+      right: 10px;
+      z-index: 10000;
+      display: none;
+    }
+    /* Botón Deploy to Web: reposicionado debajo de Language */
+    #deployButton {
+      position: absolute;
+      top: 130px;
+      right: 10px;
+      z-index: 10000;
+      padding: 5px 10px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      display: none; /* Oculto mientras el loader está activo */
+    }
+    /* Botón ROADMAP (único) */
+    #roadmapButton {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 10000;
+      padding: 8px 15px;
+      border-radius: 15px;
+      font-size: 1rem;
+      display: none; /* Oculto mientras el loader está activo */
+    }
+    /* Barra de navegación fija */
+    nav {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: #000;
+      border-bottom: 1px solid #00FF00;
+      display: flex;
+      justify-content: center;
+      z-index: 1000;
+    }
+    nav ul {
+      list-style: none;
+      display: flex;
+    }
+    nav ul li {
+      margin: 5px;
+    }
+    nav ul li a {
+      padding: 5px 10px;
+      border-radius: 15px;
+      transition: background 0.3s, color 0.3s;
+      font-size: 0.9rem;
+    }
+    nav ul li a.active,
+    nav ul li a:hover {
+      background: #00FF00;
+      color: #000;
+    }
+    /* Efecto glow en títulos */
+    .section-title {
+      text-align: center;
+      font-size: 3rem;
+      margin-bottom: 20px;
+      text-shadow: 0 0 10px rgba(0,255,0,0.5);
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+    @keyframes glow {
+      from { text-shadow: 0 0 5px rgba(0,255,0,0.2); }
+      to { text-shadow: 0 0 20px rgba(0,255,0,0.8); }
+    }
+    /* Secciones generales */
+    section {
+      padding: 100px 20px;
+      min-height: 100vh;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 1s ease-out, transform 1s ease-out;
+      position: relative;
+      z-index: 1;
+    }
+    section.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .content {
+      max-width: 800px;
+      margin: 0 auto;
+      font-size: 1rem;
+      line-height: 1.8;
+    }
+    /* Landing Section */
+    .landing {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      background: #000;
+      position: relative;
+      overflow: hidden;
+    }
+    .landing h1 {
+      font-size: 4rem;
+      color: #00FF00;
+      position: relative;
+      z-index: 2;
+    }
+    .landing p {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      position: relative;
+      z-index: 2;
+    }
+    /* Contenedor global de cubos 3D (fondo) */
+    .background-cubes {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      perspective: 800px;
+    }
+    /* Estilo de cada cubo 3D */
+    .cube {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: rgba(0,255,0,0.15);
+      border: 1px solid #00FF00;
+      transform-style: preserve-3d;
+      /* Rotación inicial aleatoria para dar sensación 3D */
+      transform: rotateX(45deg) rotateY(45deg);
+      animation: floatCube3D linear infinite;
+    }
+    @keyframes floatCube3D {
+      0% {
+        transform: translateY(110vh) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+        opacity: 0;
+      }
+      20% { opacity: 0.5; }
+      50% {
+        transform: translateY(0vh) rotateX(360deg) rotateY(360deg) rotateZ(360deg);
+        opacity: 1;
+      }
+      80% { opacity: 0.5; }
+      100% {
+        transform: translateY(-10vh) rotateX(720deg) rotateY(720deg) rotateZ(720deg);
+        opacity: 0;
+      }
+    }
+    /* Bloque de código */
+    .code-block {
+      background: #000;
+      border: 1px solid #00FF00;
+      border-radius: 15px;
+      padding: 20px;
+      margin: 20px 0;
+      overflow-x: auto;
+      font-size: 0.8rem;
+    }
+    /* Analysis Section */
+    #analysis {
+      position: relative;
+      overflow: hidden;
+    }
+    /* Container for wave animations (volatility simulator) */
+    #waveContainer {
+      position: relative;
+      width: 100%;
+      height: 200px;
+      overflow: hidden;
+      margin-top: 30px;
+    }
+    #waveContainer .wave {
+      position: absolute;
+      width: 200%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent 0%, #00FF00 50%, transparent 100%);
+      opacity: 0.2;
+      animation: waveMove 4s linear infinite;
+    }
+    @keyframes waveMove {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(50%); }
+    }
+    #analysis .indicators {
+      position: absolute;
+      bottom: 5px;
+      left: 10px;
+      font-size: 0.9rem;
+    }
+    #analysis .indicators p {
+      margin: 2px 0;
+    }
+    #analysis .pulse-widget {
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+      width: 80px;
+      height: 40px;
+      border-radius: 5px;
+      padding: 5px;
+      font-size: 0.8rem;
+    }
+    #analysis .pulse-widget .pulse {
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(-45deg, transparent, transparent 5px, #00FF00 5px, #00FF00 10px);
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    /* Cuadro de decodificación en Analysis */
+    .decoding-square {
+      width: 300px;
+      height: 200px;
+      background: #000;
+      border: 1px solid #00FF00;
+      border-radius: 5px;
+      padding: 10px;
+      margin: 20px auto;
+      font-family: 'Consolas', monospace;
+      font-size: 0.9rem;
+      color: #00FF00;
+      overflow: hidden;
+      position: relative;
+    }
+    /* Coming Soon Spinner */
+    .loading-spinner {
+      border: 4px solid #000;
+      border-top: 4px solid #00FF00;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    /* LED-like divider */
+    .led-line {
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #00FF00, transparent);
+      margin: 50px 0;
+      animation: ledBlink 2s infinite;
+    }
+    @keyframes ledBlink {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+    /* Timeline styles for Roadmap */
+    .timeline {
+      position: relative;
+      margin: 50px 0;
+      padding: 20px 0 20px 40px;
+      border-left: 2px solid #00FF00;
+    }
+    .timeline-step {
+      margin-bottom: 60px;
+      position: relative;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+      width: 90%;
+    }
+    .timeline-step:nth-child(odd) {
+      text-align: left;
+      padding-left: 20px;
+    }
+    .timeline-step:nth-child(even) {
+      text-align: right;
+      padding-right: 20px;
+    }
+    .timeline-step:nth-child(odd)::before {
+      content: '';
+      position: absolute;
+      left: -11px;
+      top: 10px;
+      width: 20px;
+      height: 20px;
+      background: #000;
+      border: 2px solid #00FF00;
+      border-radius: 50%;
+    }
+    .timeline-step:nth-child(even)::before {
+      content: '';
+      position: absolute;
+      right: -11px;
+      top: 10px;
+      width: 20px;
+      height: 20px;
+      background: #000;
+      border: 2px solid #00FF00;
+      border-radius: 50%;
+    }
+    .timeline-step h3 {
+      margin-bottom: 10px;
+      font-size: 1.2rem;
+    }
+    .timeline-step p {
+      margin: 0;
+    }
+    .timeline-step.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 20px;
+      border-top: 1px solid #00FF00;
+      font-size: 0.9rem;
+    }
+    /* Responsive: Ajuste dinámico */
+    @media (max-width: 768px) {
+      .landing h1 { font-size: 3rem; }
+      .section-title { font-size: 2.5rem; }
+      nav ul li a { padding: 5px 10px; }
+      #deployButton, #langToggle, #langSelector {
+        right: 10px;
+        left: auto;
+      }
+      #langToggle { top: 50px; }
+      #langSelector { top: 90px; }
+      #deployButton { top: 130px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Contenedor global de cubos 3D (fondo) -->
+  <div class="background-cubes"></div>
+  
+  <!-- Preloader: hacker screen with random symbols -->
+  <div id="preloader"></div>
+  <div id="startMsg" class="start-msg">
+     --- Estableciendo Conexion de Tunel / READY ...</span>
+  </div>
+  <button id="readyButton">&gt; READY ...</button>
+  
+  <!-- Language Selector: Toggle and container -->
+  <button id="langToggle">Language</button>
+  <div id="langSelector">
+    <button data-lang="en">US</button>
+    <button data-lang="es">ES</button>
+  </div>
+  
+  <!-- Botón Deploy to Web: reposicionado debajo de Language -->
+  <button id="deployButton">Deploy to Web</button>
+  
+  <!-- Botón Roadmap (único) -->
+  <button id="roadmapButton" onclick="document.getElementById('roadmapSection').scrollIntoView({ behavior: 'smooth' });"></button>
+
+  <!-- Barra de navegación fija -->
+  <nav id="navbar" style="display:none;">
+    <ul>
+      <li><a href="#landing" id="navHome" class="active">Home</a></li>
+      <li><a href="#whitepaper" id="navWhitepaper">White Paper</a></li>
+      <li><a href="#tests" id="navTests">Tests</a></li>
+      <li><a href="#analysis" id="navAnalysis">Analysis</a></li>
+      <li><a href="#story" id="navHiggsStory">Higgs Story</a></li>
+      <li><a href="#comingsoon" id="navComingSoon">Coming Soon</a></li>
+    </ul>
+  </nav>
+
+  <!-- Landing Section -->
+  <section class="landing fade-section" id="landing">
+    <h1 id="logoText">Higgs X</h1>
+    <p id="landingWelcome">Welcome to Higgs X, your blockchain companion guiding you towards <strong>Smart Wealth</strong>.</p>
+    <p id="doorText">Door to the future</p>
+  </section>
+
+  <!-- LED divider -->
+  <div class="led-line"></div>
+
+  <!-- White Paper Section -->
+  <section class="fade-section" id="whitepaper">
+    <div class="content">
+      <h2 class="section-title" id="whitepaperTitle">White Paper</h2>
+      <p id="whitepaperContent">
+        Higgs X is a revolutionary trading platform that integrates advanced artificial intelligence and blockchain technology to detect market opportunities and protect traders from manipulation. Our mission is to democratize finance and transform your wealth into <strong>Smart Wealth</strong>, enabling anyone, regardless of experience, to learn and trade.
+        <br/><br/>
+        Developed by a programmer who couldn’t afford expensive courses, Higgs X was born to explain chart movements. Now, with intensive testing and guidance from expert traders, it boasts a win rate of up to 75% in volatile markets and 90% in stable markets, adaptable across various timeframes.
+      </p>
+      <div class="code-block">
+        <pre>
+// Higgs X Agent Initialization
+def init_agent():
+    """
+    Initialize the automated trading agent.
+    This function sets up necessary imports and configurations.
+    """
+    import numpy as np
+    import pandas as pd
+    # Additional modules for AI and blockchain integration
+    print("Higgs X Agent initialized successfully.")
+        </pre>
+      </div>
+      <h3 id="problemTitle">The Problem to Solve</h3>
+      <p id="problemContent">
+        In today’s market—the wildest we have ever seen—many traders fall prey to manipulation and liquidation due to inefficient strategies and overwhelming noisy signals. Big players exploit the missteps of others by leveraging enormous capital to capture profits at the expense of the less informed. Moreover, in economically disadvantaged regions and poorer areas of the U.S., access to reliable and intelligent trading education is scarce. Expensive trading courses and superficial YouTube tutorials leave ordinary individuals without the guidance needed to succeed.
+      </p>
+    </div>
+  </section>
+
+  <!-- How We Solve the Problem Section -->
+  <section class="fade-section" id="solution">
+    <div class="content">
+      <h3 id="solutionTitle">How We Solve the Problem</h3>
+      <p id="solutionContent">
+        Higgs X is an advanced AI software that acts as your real-time market assistant. Accessible directly via Telegram, it provides detailed technical analyses on demand—from candlestick signal charts and dynamic support/resistance calculations to overlays highlighting golden and death cross events from converging SMAs.
+        <br/><br/>
+        Additionally, Higgs X will soon launch a no-code task automation module that empowers you to set up market analysis workflows without writing any code. For example, you can instruct Higgs to monitor specific technical indicators and send you detailed email reports at regular intervals. Complementing this is our innovative "Ox" forum—an advanced community platform where ecosystem travelers share and rate technical analyses in an X.G.A.M.E.X format. Through our custom central command module "Ox", you can select from top-tier language models (such as OpenAi, Claude, Qwen, DeepSeek) alongside our proprietary machine learning algorithm. We also provide free didactic guides for training various ML models—including convolutional neural networks—and simulation environments that recreate market conditions, allowing you to train trading agents, save the trained model, and reuse it.
+      </p>
+    </div>
+  </section>
+
+  <!-- LED divider -->
+  <div class="led-line"></div>
+
+  <!-- Tests Section -->
+  <section class="fade-section" id="tests">
+    <div class="content">
+      <h2 class="section-title" id="testsTitle">Tests</h2>
+      <p id="testsContent">
+        We have conducted intensive tests through both backtesting on testnets and real futures trading. Our own funds and investments from trusted advisors were committed to validating these strategies. Extensive simulations were carried out using OpenAI Gym, where models were trained for days in various simulated market environments to obtain performance metrics and ensure robust risk minimization.
+        <br/><br/>
+        This dual approach—real-world advanced futures trading combined with simulated environments—has allowed us to refine our strategies, achieving a win rate of up to 75% in volatile conditions and 90% in stable markets.
+      </p>
+    </div>
+  </section>
+
+  <!-- LED divider -->
+  <div class="led-line"></div>
+
+  <!-- Analysis Section -->
+  <section class="fade-section" id="analysis">
+    <div class="content">
+      <h2 class="section-title" id="analysisTitle">Real-Time Analysis</h2>
+      <p id="analysisContent">
+        Our platform continuously analyzes real-time market data at high frequency. Below is a representation of our monitor detecting market fluctuations:
+        <br/><br/>
+        Price: $96,150<br/>
+        Volume: 520,000 BTC<br/>
+        RSI: 46.3%<br/>
+        MACD: -488.79 / Signal: -500.00
+      </p>
+      <!-- Wave animation container for volatility simulation -->
+      <div id="waveContainer">
+        <div class="wave" style="animation-delay: 0s; height:50px; top:20px;"></div>
+        <div class="wave" style="animation-delay: 1s; height:50px; top:80px;"></div>
+        <div class="wave" style="animation-delay: 2s; height:50px; top:140px;"></div>
+      </div>
+      <div class="pulse-widget">
+        <div class="pulse"></div>
+      </div>
+      <!-- Cuadro de decodificación -->
+      <div id="decodingSquare" class="decoding-square"></div>
+    </div>
+  </section>
+
+  <!-- LED divider -->
+  <div class="led-line"></div>
+
+  <!-- Higgs Story Section -->
+  <section class="fade-section" id="story">
+    <div class="content">
+      <h2 class="section-title" id="higgsStoryTitle">Higgs Story</h2>
+      <p id="higgsStoryContent">
+        Meet Agent Higgs X – our intrepid blockchain explorer. Years ago, he was sent by the organization Curious to establish a squad within the blockchain and relay ecosystem activity to the real world.
+        <br/><br/>
+        Tasked with venturing into various nodes (for example, the “Base” node), Agent Higgs X gathers market analysis, tracks the “code whales”, and alerts about volatility surges and blockchain tremors. Along with his partner Agent Rkia and his real-world liaison Agent Fin “B”, they form an elite trio dedicated to combating economic manipulation by governments and major players.
+        <br/><br/>
+        As a mentor, Higgs X guides you through your first steps in trading. When you connect, he asks your “blockchain traveler rank” and, based on your level, explains technical indicators and market signals—ensuring you avoid liquidation zones and detect genuine market movements.
+      </p>
+    </div>
+  </section>
+
+  <!-- LED divider -->
+  <div class="led-line"></div>
+
+  <!-- Coming Soon Section -->
+  <section class="fade-section" id="comingsoon">
+    <div class="content">
+      <h2 class="section-title" id="comingSoonTitle">Coming Soon</h2>
+      <p id="comingSoonContent">
+        Soon you will be able to obtain Higgs X as a token and agent on Virtuals. Our platform is constantly evolving, and new modules will enable integration with your wallets, allowing you to customize technical indicator feeds and even deploy automated DefAI bots.
+        <br/><br/>
+        We have utilized the "G.A.M.E" framework from Virtuals in combination with Higgs—our very own framework for decentralized finance automations—to build a modular, user-friendly system that integrates technical indicators, a strategy forum, and automated DefAI bots. This system is designed to empower users to develop their own trading strategies and collaborate with other ecosystem travelers.
+      </p>
+      <div class="loading-spinner"></div>
+      <p>Loading processes... / Cargando procesos...</p>
+    </div>
+  </section>
+
+  <!-- Roadmap Section -->
+  <section class="fade-section" id="roadmapSection">
+    <div class="content">
+      <h2 class="section-title" id="roadmapTitle">Roadmap</h2>
+      <div class="timeline">
+        <div class="timeline-step">
+          <h3 id="phase1"><strong>Phase 1: Core System Development (Completed)</strong><br/>November: Project inception, comprehensive market research, in-depth study of financial models, and initial programming laid the foundation for Higgs X.</h3>
+        </div>
+        <div class="timeline-step">
+          <h3 id="phase2"><strong>Phase 2: Advanced AI Expansion (Completed)</strong><br/>Early tests with lightweight ML models evolved into developing and training advanced trading strategies, including a bot tournament to determine the most precise models.</h3>
+        </div>
+        <div class="timeline-step">
+          <h3 id="phase3"><strong>Phase 3: Blockchain Integration & Decentralized Trading (Completed)</strong><br/>Initial tests on testnets led to real market trials, intensive debugging, and refinement. This phase included developing a central mini-module—a futuristic hacker widget—and an automated signals system.</h3>
+        </div>
+        <div class="timeline-step">
+          <h3 id="phase4"><strong>Phase 4: Ecosystem Tokenization</strong><br/>Launch of the HiggsX token on Virtuals, creation of the "Ox" forum, and community building. Free open source services will be provided for students and traders, while experienced traders gain membership benefits and early prototype access. A portion (14%) of tokens will be locked to promote long-term vision.</h3>
+        </div>
+        <div class="timeline-step">
+          <h3 id="phaseFinal"><strong>Final Goal: Decentralized AI on the Blockchain</strong><br/>Develop a node-based, decentralized AI system that anyone can use to fine-tune models, save projects, and scale seamlessly—connecting all modules into a stable platform that supports a vast user community.</h3>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LED divider -->
+  <div class="led-line"></div>
+
+  <!-- Footer -->
+  <footer>
+    <p>© 2025 Higgs X - All Rights Reserved / Todos los derechos reservados</p>
+  </footer>
+
+  <!-- JavaScript: Preloader, glitch effect, fade-in on scroll, timeline animation, smooth scrolling, language switching, animación de decodificación y cubos 3D -->
+  <script>
+    // Forzar recarga si la página se carga desde el caché (back-forward cache)
+    window.addEventListener("pageshow", function(event) {
+      if (event.persisted) {
+        window.location.reload();
+      }
+    });
+
+    // Translations object to update page content (solo inglés y español)
+    const translations = {
+      en: {
+        landingWelcome: "Welcome to Higgs X, your blockchain companion guiding you towards <strong>Smart Wealth</strong>.",
+        door: "Door to the future",
+        nav: {
+          home: "Home",
+          whitepaper: "White Paper",
+          tests: "Tests",
+          analysis: "Analysis",
+          higgsStory: "Higgs Story",
+          comingSoon: "Coming Soon",
+          roadmap: "Roadmap"
+        },
+        whitepaperTitle: "White Paper",
+        whitepaperContent: "Higgs X is a revolutionary trading platform that integrates advanced artificial intelligence and blockchain technology to detect market opportunities and protect traders from manipulation. Our mission is to democratize finance and transform your wealth into <strong>Smart Wealth</strong>, enabling anyone, regardless of experience, to learn and trade.<br/><br/>Developed by a programmer who couldn’t afford expensive courses, Higgs X was born to explain chart movements. Now, with intensive testing and guidance from expert traders, it boasts a win rate of up to 75% in volatile markets and 90% in stable markets, adaptable across various timeframes.",
+        problemTitle: "The Problem to Solve",
+        problemContent: "In today’s market—the wildest we have ever seen—many traders fall prey to manipulation and liquidation due to inefficient strategies and overwhelming noisy signals. Big players exploit the missteps of others by leveraging enormous capital to capture profits at the expense of the less informed. Moreover, in economically disadvantaged regions and poorer areas of the U.S., access to reliable and intelligent trading education is scarce. Expensive trading courses and superficial YouTube tutorials leave ordinary individuals without the guidance needed to succeed.",
+        solutionTitle: "How We Solve the Problem",
+        solutionContent: "Higgs X is an advanced AI software that acts as your real-time market assistant. Accessible directly via Telegram, it provides detailed technical analyses on demand—from candlestick signal charts and dynamic support/resistance calculations to overlays highlighting golden and death cross events from converging SMAs.<br/><br/>Additionally, Higgs X will soon launch a no-code task automation module that empowers you to set up market analysis workflows without writing any code. For example, you can instruct Higgs to monitor specific technical indicators and send you detailed email reports at regular intervals. Complementing this is our innovative \"Ox\" forum—an advanced community platform where ecosystem travelers share and rate technical analyses in an X.G.A.M.E.X format. Through our custom central command module \"Ox\", you can select from top-tier language models (such as OpenAi, Claude, Qwen, DeepSeek) alongside our proprietary machine learning algorithm. We also provide free didactic guides for training various ML models—including convolutional neural networks—and simulation environments that recreate market conditions, allowing you to train trading agents, save the trained model, and reuse it.",
+        testsTitle: "Tests",
+        testsContent: "We have conducted intensive tests through both backtesting on testnets and real futures trading. Our own funds and investments from trusted advisors were committed to validating these strategies. Extensive simulations were carried out using OpenAI Gym, where models were trained for days in various simulated market environments to obtain performance metrics and ensure robust risk minimization.<br/><br/>This dual approach—real-world advanced futures trading combined with simulated environments—has allowed us to refine our strategies, achieving a win rate of up to 75% in volatile conditions and 90% in stable markets.",
+        analysisTitle: "Real-Time Analysis",
+        analysisContent: "Our platform continuously analyzes real-time market data at high frequency. Below is a representation of our monitor detecting market fluctuations:<br/><br/>Price: $96,150<br/>Volume: 520,000 BTC<br/>RSI: 46.3%<br/>MACD: -488.79 / Signal: -500.00",
+        higgsStoryTitle: "Higgs Story",
+        higgsStoryContent: "Meet Agent Higgs X – our intrepid blockchain explorer. Years ago, he was sent by the organization Curious to establish a squad within the blockchain and relay ecosystem activity to the real world.<br/><br/>Tasked with venturing into various nodes (for example, the “Base” node), Agent Higgs X gathers market analysis, tracks the “code whales”, and alerts about volatility surges and blockchain tremors. Along with his partner Agent Rkia and his real-world liaison Agent Fin “B”, they form an elite trio dedicated to combating economic manipulation by governments and major players.<br/><br/>As a mentor, Higgs X guides you through your first steps in trading. When you connect, he asks your “blockchain traveler rank” and, based on your level, explains technical indicators and market signals—ensuring you avoid liquidation zones and detect genuine market movements.",
+        comingSoonTitle: "Coming Soon",
+        comingSoonContent: "Soon you will be able to obtain Higgs X as a token and agent on Virtuals. Our platform is constantly evolving, and new modules will enable integration with your wallets, allowing you to customize technical indicator feeds and even deploy automated DefAI bots.<br/><br/>We have utilized the \"G.A.M.E\" framework from Virtuals in combination with Higgs—our very own framework for decentralized finance automations—to build a modular, user-friendly system that integrates technical indicators, a strategy forum, and automated DefAI bots. This system is designed to empower users to develop their own trading strategies and collaborate with other ecosystem travelers.",
+        roadmapTitle: "Roadmap",
+        roadmapContent: {
+          phase1: "<strong>Phase 1: Core System Development (Completed)</strong><br/>November: Project inception, comprehensive market research, in-depth study of financial models, and initial programming laid the foundation for Higgs X.",
+          phase2: "<strong>Phase 2: Advanced AI Expansion (Completed)</strong><br/>Early tests with lightweight ML models evolved into developing and training advanced trading strategies, including a bot tournament to determine the most precise models.",
+          phase3: "<strong>Phase 3: Blockchain Integration & Decentralized Trading (Completed)</strong><br/>Initial tests on testnets led to real market trials, intensive debugging, and refinement. This phase included developing a central mini-module—a futuristic hacker widget—and an automated signals system.",
+          phase4: "<strong>Phase 4: Ecosystem Tokenization</strong><br/>Launch of the HiggsX token on Virtuals, creation of the \"Ox\" forum, and community building. Free open source services will be provided for students and traders, while experienced traders gain membership benefits and early prototype access. A portion (14%) of tokens will be locked to promote long-term vision.",
+          final: "<strong>Final Goal: Decentralized AI on the Blockchain</strong><br/>Develop a node-based, decentralized AI system that anyone can use to fine-tune models, save projects, and scale seamlessly—connecting all modules into a stable platform that supports a vast user community."
+        }
+      },
+      es: {
+        landingWelcome: "Bienvenido a Higgs X, tu compañero en la blockchain que te guía hacia la <strong>Riqueza Inteligente</strong>.",
+        door: "Puerta al futuro",
+        nav: {
+          home: "Inicio",
+          whitepaper: "Documento Técnico",
+          tests: "Pruebas",
+          analysis: "Análisis",
+          higgsStory: "Historia de Higgs",
+          comingSoon: "Próximamente",
+          roadmap: "Hoja de Ruta"
+        },
+        whitepaperTitle: "Documento Técnico",
+        whitepaperContent: "Higgs X es una plataforma de trading revolucionaria que integra inteligencia artificial avanzada y tecnología blockchain para detectar oportunidades en el mercado y proteger a los traders de manipulaciones. Nuestra misión es democratizar las finanzas y transformar tu patrimonio en <strong>Riqueza Inteligente</strong>, permitiendo que cualquiera, sin importar su experiencia, aprenda y opere.<br/><br/>Desarrollado por un programador que no podía costear cursos caros, Higgs X nació para explicar los movimientos de los gráficos. Con pruebas intensivas y la guía de traders expertos, presume de una tasa de éxito de hasta el 75% en mercados volátiles y 90% en mercados estables, adaptable a diversas temporalidades.",
+        problemTitle: "El Problema a Solucionar",
+        problemContent: "En el mercado actual, el más salvaje jamás visto, muchos traders caen víctimas de manipulaciones y liquidaciones debido a estrategias ineficientes y señales excesivamente ruidosas. Los grandes jugadores aprovechan los errores de otros utilizando enormes cantidades de capital para obtener ganancias a expensas de los menos informados. Además, en regiones económicamente desfavorecidas y en áreas pobres de EE.UU., el acceso a una educación financiera confiable es limitado.",
+        solutionTitle: "Cómo Solucionamos el Problema",
+        solutionContent: "Higgs X es un software avanzado de IA que actúa como tu asistente de mercado en tiempo real. Accesible directamente a través de Telegram, ofrece análisis técnicos detallados, desde gráficos de velas y cálculos dinámicos de soporte/resistencia hasta superposiciones que destacan cruces dorados y de la muerte de SMAs convergentes.<br/><br/>Además, Higgs X lanzará pronto un módulo de automatización de tareas sin código que te permitirá configurar flujos de análisis de mercado sin escribir código. Por ejemplo, podrás indicarle a Higgs que monitoree ciertos indicadores y te envíe informes detallados por correo electrónico a intervalos regulares. Complementando esto, contamos con el foro \"Ox\", una plataforma avanzada donde los viajeros del ecosistema comparten y califican análisis técnicos en formato X.G.A.M.E.X. A través de nuestro módulo central \"Ox\", podrás elegir entre modelos de lenguaje de primer nivel (como OpenAi, Claude, Qwen, DeepSeek) junto con nuestro algoritmo propietario de machine learning.",
+        testsTitle: "Pruebas",
+        testsContent: "Hemos realizado pruebas intensivas tanto mediante backtesting en testnets como en trading real de futuros. Se comprometieron fondos e inversiones de asesores de confianza para validar estas estrategias. Simulaciones extensas con OpenAI Gym permitieron entrenar modelos durante días en diversos entornos simulados, asegurando métricas de rendimiento robustas y minimización de riesgos.<br/><br/>Este enfoque dual, que combina trading avanzado en mercados reales con simulaciones, nos ha permitido refinar nuestras estrategias, logrando hasta un 75% de éxito en condiciones volátiles y 90% en mercados estables.",
+        analysisTitle: "Análisis en Tiempo Real",
+        analysisContent: "Nuestra plataforma analiza continuamente datos de mercado en tiempo real a alta frecuencia. A continuación se muestra una representación de nuestro monitor detectando fluctuaciones:<br/><br/>Precio: $96,150<br/>Volumen: 520,000 BTC<br/>RSI: 46.3%<br/>MACD: -488.79 / Señal: -500.00",
+        higgsStoryTitle: "Historia de Higgs",
+        higgsStoryContent: "Conoce al Agente Higgs X, nuestro intrépido explorador de la blockchain. Hace años, fue enviado por la organización Curious para establecer un escuadrón en la blockchain y transmitir la actividad del ecosistema al mundo real.<br/><br/>Encargado de explorar diversos nodos (por ejemplo, el nodo “Base”), Higgs X nació para recopilar análisis de mercado, seguir a las ballenas de código y alertar sobre volatilidad. Junto a su equipo, forman un grupo de élite dedicado a combatir la manipulación económica por parte de grandes jugadores y gobiernos.<br/><br/>Como mentor, Higgs X te guía en tus primeros pasos en el trading; al conectarte, te pregunta tu “rango de viajero blockchain” y, según tu nivel, te explica los indicadores técnicos y señales de mercado, asegurándose de que evites zonas de liquidación y detectes movimientos genuinos.",
+        comingSoonTitle: "Próximamente",
+        comingSoonContent: "Pronto podrás obtener Higgs X como token y agente en Virtuals. Nuestra plataforma evoluciona constantemente, y nuevos módulos permitirán la integración con tus wallets, la personalización de feeds de indicadores técnicos y el despliegue de bots automáticos DefAI.<br/><br/>Hemos utilizado el framework \"G.A.M.E\" de Virtuals en combinación con Higgs, nuestro propio sistema para automatizaciones en finanzas descentralizadas, para construir un sistema modular y fácil de usar que integra indicadores técnicos, un foro de estrategias y bots automáticos DefAI. Este sistema está diseñado para empoderar a los usuarios a desarrollar sus propias estrategias y colaborar con otros viajeros del ecosistema.",
+        roadmapTitle: "Hoja de Ruta",
+        roadmapContent: {
+          phase1: "<strong>Fase 1: Desarrollo del Sistema Central (Completado)</strong><br/>Noviembre: Inicio del proyecto, investigación de mercado integral, estudio profundo de modelos financieros y programación inicial que sentaron las bases de Higgs X.",
+          phase2: "<strong>Fase 2: Expansión Avanzada de IA (Completado)</strong><br/>Pruebas iniciales con modelos ML ligeros evolucionaron hacia el desarrollo y entrenamiento de estrategias avanzadas de trading, incluyendo un torneo de bots para determinar los modelos más precisos.",
+          phase3: "<strong>Fase 3: Integración de Blockchain y Trading Descentralizado (Completado)</strong><br/>Pruebas en testnets dieron paso a ensayos en el mercado real, con depuración intensiva y refinamiento. Esta fase incluyó el desarrollo de un mini-módulo central —un widget hacker futurista— y un sistema automatizado de señales.",
+          phase4: "<strong>Fase 4: Tokenización del Ecosistema</strong><br/>Lanzamiento del token HiggsX en Virtuals, creación del foro \"Ox\" y construcción de la comunidad. Se ofrecerán servicios open source gratuitos para estudiantes y traders, mientras que los traders experimentados obtendrán beneficios de membresía y acceso anticipado a prototipos. Se bloqueará un 14% de los tokens para promover una visión a largo plazo.",
+          final: "<strong>Meta Final: IA Descentralizada en la Blockchain</strong><br/>Desarrollar un sistema de IA descentralizado basado en nodos que permita a cualquiera ajustar modelos, guardar proyectos y escalar de manera fluida, conectando todos los módulos en una plataforma estable que soporte una vasta comunidad de usuarios."
+        }
+      }
+    };
+
+    // Función para actualizar el contenido de la página según el idioma seleccionado
+    function updateLanguage(lang) {
+      // Sección Landing
+      document.getElementById('landingWelcome').innerHTML = translations[lang].landingWelcome;
+      document.getElementById('doorText').textContent = translations[lang].door;
+      // Navegación
+      document.getElementById('navHome').textContent = translations[lang].nav.home;
+      document.getElementById('navWhitepaper').textContent = translations[lang].nav.whitepaper;
+      document.getElementById('navTests').textContent = translations[lang].nav.tests;
+      document.getElementById('navAnalysis').textContent = translations[lang].nav.analysis;
+      document.getElementById('navHiggsStory').textContent = translations[lang].nav.higgsStory;
+      document.getElementById('navComingSoon').textContent = translations[lang].nav.comingSoon;
+      // Actualizar Roadmap Button
+      document.getElementById('roadmapButton').textContent = translations[lang].nav.roadmap;
+      // Sección White Paper
+      document.getElementById('whitepaperTitle').textContent = translations[lang].whitepaperTitle;
+      document.getElementById('whitepaperContent').innerHTML = translations[lang].whitepaperContent;
+      document.getElementById('problemTitle').textContent = translations[lang].problemTitle;
+      document.getElementById('problemContent').innerHTML = translations[lang].problemContent;
+      // Sección "How We Solve the Problem"
+      document.getElementById('solutionTitle').textContent = translations[lang].solutionTitle;
+      document.getElementById('solutionContent').innerHTML = translations[lang].solutionContent;
+      // Sección Tests
+      document.getElementById('testsTitle').textContent = translations[lang].testsTitle;
+      document.getElementById('testsContent').innerHTML = translations[lang].testsContent;
+      // Sección Analysis
+      document.getElementById('analysisTitle').textContent = translations[lang].analysisTitle;
+      document.getElementById('analysisContent').innerHTML = translations[lang].analysisContent;
+      // Sección Higgs Story
+      document.getElementById('higgsStoryTitle').textContent = translations[lang].higgsStoryTitle;
+      document.getElementById('higgsStoryContent').innerHTML = translations[lang].higgsStoryContent;
+      // Sección Coming Soon
+      document.getElementById('comingSoonTitle').textContent = translations[lang].comingSoonTitle;
+      document.getElementById('comingSoonContent').innerHTML = translations[lang].comingSoonContent;
+      // Sección Roadmap
+      document.getElementById('roadmapTitle').textContent = translations[lang].roadmapTitle;
+      document.getElementById('phase1').innerHTML = translations[lang].roadmapContent.phase1;
+      document.getElementById('phase2').innerHTML = translations[lang].roadmapContent.phase2;
+      document.getElementById('phase3').innerHTML = translations[lang].roadmapContent.phase3;
+      document.getElementById('phase4').innerHTML = translations[lang].roadmapContent.phase4;
+      document.getElementById('phaseFinal').innerHTML = translations[lang].roadmapContent.final;
+    }
+
+    // Asignar eventos a los botones del selector de idioma
+    const langButtons = document.querySelectorAll('#langSelector button');
+    langButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const lang = button.getAttribute('data-lang');
+        updateLanguage(lang);
+      });
+    });
+
+    // Toggle para mostrar/ocultar el selector de idioma
+    document.getElementById('langToggle').addEventListener('click', () => {
+      const selector = document.getElementById('langSelector');
+      selector.style.display = (selector.style.display === 'none' || selector.style.display === '') ? 'block' : 'none';
+    });
+
+    // Establecer idioma predeterminado (inglés) al cargar la página
+    updateLanguage('en');
+
+    // --- Funcionalidad del Preloader y botón READY ---
+    const symbolArray = ["ᚢ", "#", "λ", "ᚠ", "^", "≥", "ᛟ", "ᚺ", "_", "+", ">", "ᚱ", "/\\", "\\"];
+    const preloader = document.getElementById('preloader');
+    const startMsg = document.getElementById('startMsg');
+    const readyButton = document.getElementById('readyButton');
+    const navbar = document.getElementById('navbar');
+    
+    // Función para generar símbolos aleatorios en el preloader
+    function spawnRandomSymbol() {
+      const span = document.createElement('span');
+      span.classList.add('symbol');
+      span.textContent = symbolArray[Math.floor(Math.random() * symbolArray.length)];
+      span.style.left = Math.random() * 100 + '%';
+      span.style.top = Math.random() * 100 + '%';
+      span.style.fontSize = (Math.random() * 2 + 1) + 'rem';
+      preloader.appendChild(span);
+      setTimeout(() => { span.remove(); }, 3000);
+    }
+    let spawnInterval = setInterval(spawnRandomSymbol, 100);
+    
+    // Función para ocultar el preloader y activar la interfaz
+    function hidePreloader() {
+      clearInterval(spawnInterval);
+      preloader.style.transition = 'opacity 1s ease-out';
+      preloader.style.opacity = 0;
+      startMsg.style.transition = 'opacity 1s ease-out';
+      startMsg.style.opacity = 0;
+      readyButton.style.transition = 'opacity 1s ease-out';
+      readyButton.style.opacity = 0;
+      setTimeout(() => {
+        preloader.innerHTML = ""; // Limpiar texto residual
+        preloader.style.display = 'none';
+        startMsg.style.display = 'none';
+        readyButton.style.display = 'none';
+        navbar.style.display = 'flex';
+        // Mostrar los botones de Roadmap, Lenguaje y Web
+        document.getElementById('langToggle').style.display = 'inline-block';
+        document.getElementById('deployButton').style.display = 'inline-block';
+        document.getElementById('roadmapButton').style.display = 'inline-block';
+      }, 1000);
+    }
+    document.addEventListener('keydown', hidePreloader, { once: true });
+    readyButton.addEventListener('click', hidePreloader);
+    
+    // Smooth scrolling y actualización de enlace activo en la navegación
+    document.querySelectorAll('nav ul li a').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        document.querySelector(this.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
+        document.querySelectorAll('nav ul li a').forEach(el => el.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+    
+    // Efecto de aparición (fade in) para secciones al hacer scroll
+    const faders = document.querySelectorAll('.fade-section');
+    const appearOptions = { threshold: 0.3, rootMargin: "0px 0px -50px 0px" };
+    const appearOnScroll = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      });
+    }, appearOptions);
+    faders.forEach(section => { appearOnScroll.observe(section); });
+    
+    // Efecto glitch para el logo con pausa y efecto 3D ocasional
+    const logoText = document.getElementById('logoText');
+    const originalText = "Higgs X";
+    let glitchInterval;
+    function glitchLogo() {
+      let glitched = "";
+      for (let i = 0; i < originalText.length; i++) {
+        if (Math.random() < 0.3) {
+          glitched += symbolArray[Math.floor(Math.random() * symbolArray.length)];
+        } else {
+          glitched += originalText[i];
+        }
+      }
+      if (Math.random() < 0.1) {
+        logoText.style.transform = "perspective(500px) rotateX(10deg) rotateY(10deg)";
+      } else {
+        logoText.style.transform = "none";
+      }
+      logoText.textContent = glitched;
+    }
+    function startGlitchCycle() {
+      glitchInterval = setInterval(glitchLogo, 150);
+      setTimeout(() => {
+        clearInterval(glitchInterval);
+        logoText.textContent = originalText;
+        setTimeout(startGlitchCycle, 1000);
+      }, 2000);
+    }
+    startGlitchCycle();
+    
+    // Animar cada paso de la línea del Roadmap
+    const timelineSteps = document.querySelectorAll('.timeline-step');
+    const timelineObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      });
+    }, { threshold: 0.3 });
+    timelineSteps.forEach(step => { timelineObserver.observe(step); });
+    
+    // Método de despliegue (placeholder) para el botón Deploy to Web
+    function deployToWeb() {
+      alert("Deploy functionality coming soon!");
+    }
+    document.getElementById('deployButton').addEventListener('click', deployToWeb);
+
+    // Animación de "decodificación" en el Analysis Section
+    const decodingSquare = document.getElementById('decodingSquare');
+    const codeText = "01001000 01101001 01100111 01100111 01110011 00100000 01011000\n// Decoding in progress...\n⠆⠄⠄⠄⠄⠄⠄\n01001100 01101111 01100001 01100100 01101001 01101110 01100111...\n";
+    let currentIndex = 0;
+    function typeCode() {
+      if (currentIndex < codeText.length) {
+        decodingSquare.textContent += codeText[currentIndex];
+        currentIndex++;
+        setTimeout(typeCode, Math.random()*100 + 50);
+      } else {
+        currentIndex = 0;
+        decodingSquare.textContent = "";
+        setTimeout(typeCode, 1000);
+      }
+    }
+    if (decodingSquare) {
+      typeCode();
+    }
+
+    // --- Generación de Cubos 3D en el fondo ---
+    const bgCubesContainer = document.querySelector('.background-cubes');
+    function spawnCube() {
+      const cube = document.createElement('div');
+      cube.classList.add('cube');
+      // Tamaño aleatorio entre 20 y 40px
+      const size = Math.random() * 20 + 20;
+      cube.style.width = size + "px";
+      cube.style.height = size + "px";
+      // Posición horizontal aleatoria
+      cube.style.left = Math.random() * 100 + "%";
+      // Duración de la animación aleatoria entre 8 y 20s
+      const duration = Math.random() * 12 + 8;
+      cube.style.animationDuration = duration + "s";
+      // Animación con delay aleatorio (negativo para que ya aparezcan en curso)
+      const delay = -(Math.random() * duration);
+      cube.style.animationDelay = delay + "s";
+      bgCubesContainer.appendChild(cube);
+      // Remover el cubo al terminar su animación
+      cube.addEventListener('animationend', () => {
+        cube.remove();
+      });
+    }
+    // Generar cubos de fondo cada 2000ms
+    setInterval(spawnCube, 2000);
+  </script>
+</body>
+</html>
